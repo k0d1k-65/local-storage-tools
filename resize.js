@@ -8,7 +8,7 @@ const { ROOT_DIR, OUTPUT_DIR, MAX_WIDTH, MAX_HEIGHT, IMAGE_EXTENSIONS, myLog, in
 initLog();
 
 const copyFile = (inputPath, outputPath, callback) => {
-  // 出力先のディレクトリが存在しない場合は作成する
+  // コピペ出力先のディレクトリが存在しない場合は作成する
   const outputDirectory = path.dirname(outputPath);
   if (!fs.existsSync(outputDirectory)) {
     fs.mkdirSync(outputDirectory, { recursive: true });
@@ -19,14 +19,13 @@ const copyFile = (inputPath, outputPath, callback) => {
 }
 
 const resizeAndSaveFile = (inputPath, outputPath, callback) => {
-  // 画像サイズの取得
   sharp(inputPath)
     .metadata()
     .then(function(metadata) {
       const width = metadata.width;
       const height = metadata.height;
 
-      // 最大サイズ以下の場合はリサイズをスキップ
+      // 最大サイズ以下の場合はリサイズをスキップしてコピペだけ
       if (width <= MAX_WIDTH && height <= MAX_HEIGHT) {
         copyFile(inputPath, outputPath, _ => myLog(`Copied: ${outputPath}`));
         return;
@@ -53,7 +52,7 @@ const resizeAndSaveFile = (inputPath, outputPath, callback) => {
         fs.mkdirSync(outputDir, { recursive: true });
       }
 
-      // リサイズ処理
+      // リサイズして出力
       sharp(inputPath)
         .resize(newWidth, newHeight)
         .toFile(outputPath, function(err, info) {
@@ -77,12 +76,12 @@ const processFiles = async (dirPath) => {
     const inputPath = path.join(dirPath, file);
     const stat = await fs.promises.stat(inputPath);
 
-    // ディレクトリの場合、下層について実行
+    // ディレクトリの場合、下層について同期的に実行
     if (stat.isDirectory()) {
       // 下層を再帰処理
       await processFiles(inputPath);
     }
-    // ファイルの場合、ディレクトリについて完了後に処理するため、一旦スタック
+    // ファイルの場合、非同期でどんどんコピペ
     else {
       const relativePath = path.relative(ROOT_DIR, inputPath);
       const outputPath = path.join(OUTPUT_DIR, 'Resized', relativePath);

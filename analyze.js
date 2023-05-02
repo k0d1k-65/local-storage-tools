@@ -10,16 +10,15 @@ initLog();
 let extentions = [];
 
 const analyzeFile = async (inputPath) => {
-  const extension = path.extname(inputPath).toLowerCase();
-
   // 画像以外
+  const extension = path.extname(inputPath).toLowerCase();
   if (!IMAGE_EXTENSIONS.includes(extension)) {
     return {
       isImage: false,
     };
   }
 
-  // 画像サイズの取得
+  // 画像メタの取得
   const metadata = await sharp(inputPath).metadata();
 
   return {
@@ -38,20 +37,19 @@ const processFiles = async (dirPath, indent = '') => {
   // 始端ログ
   myLog(`${indentSpaces}[${path.basename(dirPath)}]`);
 
-  // 子ファイルのフルパス
   const childFiles = [];
 
-  // ディレクトリについて解析（1ディレクトリずつ）
+  // 同期的に解析
   for (const file of files) {
     const inputPath = path.join(dirPath, file);
     const stat = await fs.promises.stat(inputPath);
 
-    // ディレクトリの場合、下層について実行
+    // ディレクトリの場合、下層について同期的に解析
     if (stat.isDirectory()) {
       // 下層を再帰処理
       await processFiles(inputPath, indentSpaces);
     }
-    // ファイルの場合、ディレクトリについて完了後に処理するため、一旦スタック
+    // ファイルの場合、一旦スタック
     else {
       childFiles.push({
         inputPath,
@@ -63,7 +61,7 @@ const processFiles = async (dirPath, indent = '') => {
   // ファイルの拡張子を保存
   extentions = [...extentions, ...childFiles.map(({inputPath}) => path.extname(inputPath).toLowerCase())];
 
-  // ファイルについて解析
+  // ファイルについて同期的に解析
   const analyzed = await Promise.all(childFiles.map(async ({inputPath, size}) => {
     return {
       ...await analyzeFile(inputPath),
@@ -71,7 +69,7 @@ const processFiles = async (dirPath, indent = '') => {
     }
   }));
 
-  // ファイルの解析結果を統計
+  // ファイルの解析結果の統計
   const initStatistic = {
     count: 0,
     images: 0,
