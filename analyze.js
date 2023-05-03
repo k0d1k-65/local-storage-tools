@@ -112,7 +112,7 @@ const processFiles = async (dirPath, indent = '') => {
   statistic.avgHeight = statistic.images <= 0 ? 0 :statistic.sumHeight / statistic.images;
 
   // 終端ログ
-  myLog(`${indentSpaces}[${basename}: ${JSON.stringify({
+  myLog(`${indentSpaces}[${path.basename(dirPath)}: ${JSON.stringify({
     files: statistic.count,
     images: statistic.images,
     size: bytesToSize(statistic.sumSize),

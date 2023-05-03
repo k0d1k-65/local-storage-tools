@@ -9,7 +9,7 @@ exports.OUTPUT_DIR = '..';
 /** リサイズ後の最大幅 */
 exports.MAX_WIDTH = 1024;
 /** リサイズ後の最大高さ */
-exports.MAX_HEIGHT = 1024;
+exports.MAX_HEIGHT = 1000;
 
 /** 画像識別対象の拡張子 */
 exports.IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.jfif'];

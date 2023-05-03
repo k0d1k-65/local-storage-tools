@@ -35,15 +35,17 @@ const resizeAndSaveFile = (inputPath, outputPath, callback) => {
       let newHeight = height;
 
       // 幅が最大サイズを超える場合、アスペクト比を保持したまま幅を最大サイズに変更
-      if (width > MAX_WIDTH) {
-        newWidth = MAX_WIDTH;
-        newHeight = parseInt(height * (MAX_WIDTH / width));
-      }
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        const widthRatio = MAX_WIDTH / width;
+        const heightRatio = MAX_HEIGHT / height;
 
-      // 高さが最大サイズを超える場合、アスペクト比を保持したまま高さを最大サイズに変更
-      if (height > MAX_HEIGHT) {
-        newWidth = parseInt(width * (MAX_HEIGHT / height));
-        newHeight = MAX_HEIGHT;
+        if (widthRatio < heightRatio) {
+          newWidth = MAX_WIDTH;
+          newHeight = parseInt(height * widthRatio);
+        } else {
+          newWidth = parseInt(width * heightRatio);
+          newHeight = MAX_HEIGHT;
+        }
       }
 
       // 出力先のディレクトリが存在しない場合は作成する
